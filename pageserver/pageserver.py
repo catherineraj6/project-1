@@ -12,7 +12,7 @@
   located in ./pages  (where '.' is the directory from which this
   program is run).
 """
-
+import re
 import config    # Configure from .ini files and command line
 import logging   # Better than print statements
 logging.basicConfig(format='%(levelname)s:%(message)s',
@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 
 import socket    # Basic TCP/IP communication on the internet
 import _thread   # Response computation runs concurrently with main program
-
+import os.path
+from os import path
 
 def listen(portnum):
     """
@@ -90,9 +91,27 @@ def respond(sock):
     log.info("Request was {}\n***\n".format(request))
 
     parts = request.split()
+    #re2 = re.compile(r"[..]~")
+
+    opt = get_options()
+    docroot = opt.DOCROOT
+    file_in_dict = docroot+ parts[1]
+
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+       # transmit(STATUS_OK, sock)
+        #transmit(CAT, sock)
+        if os.path.exists(file_in_dict):
+            transmit(STATUS_OK, sock)
+        elif(".." in file_in_dict or "~" in file_in_dict):
+            log.info("403 error; {}".format(request))
+            transmit(STATUS_FORBIDDEN,sock)
+            transmit("\nIllegal characters: {}\n".format(request),sock)
+            #transmit(STATUS_FORBIDDEN,sock
+            #transmit("\nThese characters ain't it bro: {}\n".format(request),sock)
+        else:
+            transmit(STATUS_NOT_FOUND,sock)
+            transmit("\nWe cannot find the file: {}\n".format(request),sock)
+    
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
