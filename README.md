@@ -37,4 +37,11 @@ The goal of this project is to implement a "file checking" logic for the existin
 
 ## Authors
 
-Michal Young, Ram Durairajan.
+Catherine Raj
+
+#Description: 
+Coding logic for checking files in an existing server, and handling requests, and giving 
+error messages accordingly.
+
+#Info:
+craj@uoregon.edu 
