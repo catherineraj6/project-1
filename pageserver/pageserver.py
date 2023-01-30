@@ -95,22 +95,27 @@ def respond(sock):
 
     opt = get_options()
     docroot = opt.DOCROOT
-    file_in_dict = docroot+ parts[1]
+    file_in_dict = docroot+parts[1]
 
     if len(parts) > 1 and parts[0] == "GET":
        # transmit(STATUS_OK, sock)
         #transmit(CAT, sock)
         if os.path.exists(file_in_dict):
             transmit(STATUS_OK, sock)
+            with open(file_in_dict) as f:
+                scan = f.read()
+                transmit(scan,sock)
+    
         elif(".." in file_in_dict or "~" in file_in_dict):
             log.info("403 error; {}".format(request))
             transmit(STATUS_FORBIDDEN,sock)
-            transmit("\nIllegal characters: {}\n".format(request),sock)
+            transmit("\nIllegal characters: {}\n",sock)
             #transmit(STATUS_FORBIDDEN,sock
             #transmit("\nThese characters ain't it bro: {}\n".format(request),sock)
         else:
+            log.info("404 error; {}".format(request))
             transmit(STATUS_NOT_FOUND,sock)
-            transmit("\nWe cannot find the file: {}\n".format(request),sock)
+            transmit("\nWe cannot find the file: {}\n",sock)
     
     else:
         log.info("Unhandled request: {}".format(request))
